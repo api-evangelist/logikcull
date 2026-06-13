@@ -1,0 +1,88 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "aid": "https://apis.io/vocabulary/aid",
+    "name": "schema:name",
+    "description": "schema:description",
+    "url": "schema:url",
+    "baseURL": "schema:url",
+    "humanURL": "schema:url",
+    "image": "schema:image",
+    "tags": "schema:keywords",
+    "created": "schema:dateCreated",
+    "modified": "schema:dateModified",
+    "apis": {
+      "@id": "schema:hasPart",
+      "@type": "@id"
+    },
+    "properties": {
+      "@id": "schema:additionalProperty",
+      "@type": "@id"
+    },
+    "type": "schema:additionalType",
+    "common": {
+      "@id": "schema:isPartOf",
+      "@type": "@id"
+    },
+    "maintainers": {
+      "@id": "schema:maintainer",
+      "@type": "@id"
+    },
+    "Documentation": "schema:documentation",
+    "OpenAPI": "schema:documentation",
+    "Integrations": "schema:potentialAction",
+    "Plans": "schema:Offer",
+    "RateLimits": "schema:Thing",
+    "FinOps": "schema:Thing",
+    "Status": "schema:Thing",
+    "Pricing": "schema:Offer",
+    "Blog": "schema:Blog",
+    "Support": "schema:ContactPoint",
+    "Contact": "schema:ContactPoint",
+    "eDiscovery": "schema:Thing",
+    "legalHold": "schema:LegalService",
+    "redaction": "schema:Action",
+    "productionSet": "schema:CreativeWork",
+    "documentUpload": "schema:UploadAction",
+    "tagging": "schema:Action",
+    "reviewProject": "schema:Project"
+  },
+  "@type": "schema:WebAPI",
+  "@id": "https://raw.githubusercontent.com/api-evangelist/logikcull/refs/heads/main/apis.yml",
+  "aid": "logikcull",
+  "name": "Logikcull",
+  "description": "Cloud eDiscovery platform with a REST API for uploading case documents, managing review projects, applying tags and redactions, and generating production sets.",
+  "url": "https://www.logikcull.com/",
+  "humanURL": "https://www.logikcull.com/",
+  "baseURL": "https://api.logikcull.com",
+  "tags": [
+    "eDiscovery",
+    "Legal",
+    "Document Management",
+    "Legal Holds",
+    "Redaction",
+    "Production Sets",
+    "Cloud"
+  ],
+  "schema:sameAs": [
+    "https://docs.revealdata.com/logikcull"
+  ],
+  "schema:subjectOf": {
+    "@type": "schema:Blog",
+    "schema:url": "https://www.logikcull.com/blog"
+  },
+  "schema:provider": {
+    "@type": "schema:Organization",
+    "schema:name": "Logikcull",
+    "schema:url": "https://www.logikcull.com/",
+    "schema:contactPoint": {
+      "@type": "schema:ContactPoint",
+      "schema:url": "https://www.logikcull.com/company/contact-us"
+    }
+  },
+  "schema:serviceStatus": {
+    "@type": "schema:Thing",
+    "schema:url": "https://status.logikcull.com"
+  }
+}
