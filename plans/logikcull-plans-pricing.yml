@@ -1,0 +1,58 @@
+name: Logikcull Plans and Pricing
+description: >-
+  Logikcull offers two primary pricing models for their cloud eDiscovery
+  platform: subscription-based annual plans for regular users and pay-as-you-go
+  monthly plans for on-demand access.
+url: https://www.logikcull.com/pricing
+plans:
+  - name: Pay As You Go
+    description: >-
+      Storage-based monthly pricing with no long-term commitment. Ideal for
+      smaller matters or organizations that need on-demand access to eDiscovery
+      capabilities without annual contracts.
+    url: https://www.logikcull.com/pricing
+    price: 40.00
+    unit: GB/month
+    currency: USD
+    minimum: 10 GB stored
+    commitment: Monthly, no commit
+    features:
+      - Unlimited users
+      - Unlimited projects
+      - Unlimited downloads
+      - 24/5 in-app support
+      - Easy matter bill-back
+      - Initial onboarding and training
+      - Document processing
+      - Search and review
+      - Tagging and coding panels
+      - Production set generation
+      - Cloud integrations (Slack, Microsoft 365, Google Workspace, Box, Dropbox)
+
+  - name: Subscription (Annual)
+    description: >-
+      Fixed annual pricing for government, corporate, and law firm users who
+      need consistent access and enterprise-grade features including AI,
+      transcription, and premium support.
+    url: https://www.logikcull.com/pricing
+    price: contact-sales
+    unit: annual
+    currency: USD
+    commitment: Annual contract
+    target: Government, Corporate, Law Firms
+    features:
+      - Everything in Pay As You Go
+      - ASK GenAI Fact-Finding (AI-powered)
+      - Audio/video transcription
+      - Chat filtering for Slack
+      - Data archiving
+      - PII detection and global redactions
+      - Premium support and training
+      - Dedicated account management
+      - Advanced analytics and reporting
+
+notes:
+  - Pricing is contact-sales for subscription tiers; Pay As You Go has published $40/GB/month rate.
+  - Firms typically bill clients on a per-GB per-month basis for matter billing.
+  - No extra hosting or user fees on Pay As You Go.
+  - API access capabilities are available to subscription customers.

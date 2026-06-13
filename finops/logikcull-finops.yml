@@ -1,0 +1,81 @@
+name: Logikcull FinOps
+description: >-
+  Financial operations guidance for managing Logikcull eDiscovery platform
+  costs. Logikcull's storage-based pricing model makes cost management
+  predictable and directly tied to data volume, enabling law firms and corporate
+  legal teams to implement transparent matter billing.
+url: https://www.logikcull.com/pricing
+billing:
+  model: storage-based
+  currency: USD
+  cycles:
+    - monthly
+    - annual
+
+cost-drivers:
+  - name: Data Storage Volume
+    description: >-
+      Primary cost driver on Pay As You Go plans. Charged at $40 per GB per
+      month for data stored in the platform. Minimizing retained data reduces
+      costs.
+    unit: GB/month
+    rate: 40.00
+    optimization: >-
+      Download and delete processed matters promptly after case closure to
+      reduce ongoing storage costs.
+
+  - name: Annual Subscription Tier
+    description: >-
+      Annual commitment plans offer fixed pricing that may be more
+      cost-effective for organizations with consistent, high-volume eDiscovery
+      needs. Contact sales for contract pricing.
+    unit: annual contract
+    rate: contact-sales
+    optimization: >-
+      Evaluate total annual data volume to determine whether Pay As You Go or
+      subscription pricing provides better value.
+
+matter-billing:
+  description: >-
+    Logikcull is designed for matter-level bill-back to clients. Firms
+    typically charge clients on a per-GB per-month basis, making cost
+    allocation straightforward.
+  features:
+    - Easy matter bill-back reporting
+    - Per-project usage visibility
+    - Transparent storage metering
+
+optimization-tips:
+  - name: Data Culling Before Upload
+    description: >-
+      Cull and filter data before uploading to Logikcull to reduce the volume
+      of data processed and stored, directly lowering per-GB costs.
+
+  - name: Prompt Matter Closeout
+    description: >-
+      Download production sets and close matters promptly after case resolution
+      to stop ongoing storage billing.
+
+  - name: Cloud-to-Cloud Collection
+    description: >-
+      Use native cloud integrations (Microsoft 365, Google Workspace, Slack,
+      Box, Dropbox) to collect only targeted custodian data rather than
+      broad over-collection.
+
+  - name: Plan Right-Sizing
+    description: >-
+      For firms with predictable, high-volume matters, annual subscription
+      plans may offer cost savings compared to Pay As You Go rates. Benchmark
+      12 months of historical data volume before committing.
+
+no-fee-items:
+  - Unlimited users (Pay As You Go)
+  - Unlimited downloads
+  - Unlimited projects
+  - Extra hosting fees
+
+notes:
+  - Logikcull's transparent per-GB pricing eliminates many hidden fees common
+    in traditional eDiscovery vendor billing.
+  - Subscription pricing requires contacting sales; no public rate card available.
+  - Platform acquired by Reveal Data; billing and contracts may reference Reveal.

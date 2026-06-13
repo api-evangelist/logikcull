@@ -1,0 +1,43 @@
+name: Logikcull Rate Limits
+description: >-
+  Rate limit information for the Logikcull API. Logikcull does not publicly
+  document specific rate limit thresholds. Limits are applied per account and
+  are managed through their enterprise support channels. Contact
+  support@logikcull.com or your account representative for specific rate limit
+  details for your plan.
+url: https://docs.revealdata.com/logikcull
+limits:
+  - name: API Request Rate
+    description: >-
+      Specific request-per-minute or request-per-hour limits are not publicly
+      documented. Logikcull enforces rate limits on API access to ensure
+      platform stability. Enterprise subscribers should contact their account
+      team for specific limits.
+    type: requests
+    documented: false
+    contact: support@logikcull.com
+
+  - name: Document Upload Size
+    description: >-
+      Logikcull supports large file uploads for document processing. The
+      platform uses multipart resumable uploads (EvaporateJS library for
+      browser-to-S3) to handle large files reliably. Specific per-file or
+      per-request size limits are managed by the platform.
+    type: upload
+    documented: false
+
+  - name: Storage
+    description: >-
+      Storage is metered and billed on a per-GB basis for Pay As You Go
+      customers with a minimum threshold of 10 GB. Subscription plans include
+      defined storage allocations negotiated at contract time.
+    type: storage
+    unit: GB
+    minimum: 10
+    billing: per-GB/month
+
+notes:
+  - Rate limits are not publicly documented; contact Logikcull support for specifics.
+  - Platform is built on AWS EC2 and S3 infrastructure, enabling scalable throughput.
+  - API access and associated limits are generally available to subscription customers.
+  - Status page at status.logikcull.com tracks platform availability and incidents.
