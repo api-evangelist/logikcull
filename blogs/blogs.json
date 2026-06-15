@@ -63,5 +63,17 @@
       "url": "https://www.logikcull.com/blog/demonstrating-reasonably-specific-detail-on-vaughn-indexes-in-foia-litigation",
       "date": null
     }
-  ]
+  ],
+  "repo": "logikcull",
+  "feeds": [
+    {
+      "source": "https://www.logikcull.com/pricing",
+      "feed_url": "https://www.logikcull.com/pricing",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-06-14T20:42:17Z"
 }
