@@ -1,0 +1,1004 @@
+"""
+Logikcull GraphQL Schema
+Conceptual schema derived from the Logikcull REST API for e-discovery workflows.
+Covers upload management, processing status, project management, search queries,
+document review workflows, tag management, production, and analytics.
+"""
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# ─── Scalars ───────────────────────────────────────────────────────────────────
+
+scalar DateTime
+scalar JSON
+scalar Upload
+scalar URL
+
+# ─── Enums ─────────────────────────────────────────────────────────────────────
+
+enum UploadStatus {
+  PENDING
+  UPLOADING
+  PROCESSING
+  COMPLETE
+  FAILED
+  CANCELLED
+}
+
+enum DocumentStatus {
+  UNREVIEWED
+  REVIEWED
+  PRODUCED
+  WITHHELD
+  REDACTED
+}
+
+enum ProcessingStatus {
+  QUEUED
+  EXTRACTING
+  INDEXING
+  COMPLETE
+  ERROR
+}
+
+enum ReviewDecision {
+  RESPONSIVE
+  NON_RESPONSIVE
+  PRIVILEGED
+  CONFIDENTIAL
+  NEEDS_REVIEW
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum ProductionFormat {
+  PDF
+  TIFF
+  NATIVE
+  TEXT
+}
+
+enum ProductionStatus {
+  PENDING
+  PROCESSING
+  COMPLETE
+  FAILED
+}
+
+enum LegalHoldStatus {
+  ACTIVE
+  RELEASED
+  PENDING
+}
+
+enum UserRole {
+  ADMIN
+  REVIEWER
+  VIEWER
+  CASE_MANAGER
+}
+
+enum TagColor {
+  RED
+  BLUE
+  GREEN
+  YELLOW
+  ORANGE
+  PURPLE
+  GREY
+}
+
+enum ExportFormat {
+  CSV
+  JSON
+  XML
+  ZIP
+}
+
+enum SearchOperator {
+  AND
+  OR
+  NOT
+}
+
+enum AnnotationType {
+  REDACTION
+  HIGHLIGHT
+  COMMENT
+  STAMP
+}
+
+enum IntegrationProvider {
+  SLACK
+  MICROSOFT_365
+  GOOGLE_WORKSPACE
+  BOX
+  DROPBOX
+  ONEDRIVE
+}
+
+# ─── Interfaces ─────────────────────────────────────────────────────────────────
+
+interface Node {
+  id: ID!
+}
+
+interface Auditable {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+interface Pageable {
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+# ─── Types ─────────────────────────────────────────────────────────────────────
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Organization implements Node {
+  id: ID!
+  name: String!
+  slug: String!
+  plan: Plan!
+  users: [User!]!
+  projects: ProjectConnection!
+  storageUsedBytes: Int!
+  storageQuotaBytes: Int!
+  integrations: [Integration!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Plan implements Node {
+  id: ID!
+  name: String!
+  storageLimitGB: Int!
+  userLimit: Int!
+  features: [String!]!
+  pricePerMonth: Float!
+}
+
+type User implements Node & Auditable {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  fullName: String!
+  role: UserRole!
+  organization: Organization!
+  projects: [Project!]!
+  assignedDocuments: DocumentConnection!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type Project implements Node & Auditable {
+  id: ID!
+  name: String!
+  description: String
+  caseNumber: String
+  matterNumber: String
+  organization: Organization!
+  members: [ProjectMember!]!
+  uploads: UploadConnection!
+  documents: DocumentConnection!
+  tags: [Tag!]!
+  savedSearches: [SavedSearch!]!
+  productions: [Production!]!
+  legalHolds: [LegalHold!]!
+  analytics: ProjectAnalytics!
+  totalDocuments: Int!
+  reviewedDocuments: Int!
+  storageUsedBytes: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type ProjectMember implements Node {
+  id: ID!
+  user: User!
+  project: Project!
+  role: UserRole!
+  addedAt: DateTime!
+}
+
+type ProjectConnection implements Pageable {
+  edges: [ProjectEdge!]!
+  nodes: [Project!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type ProjectEdge {
+  cursor: String!
+  node: Project!
+}
+
+type Upload implements Node & Auditable {
+  id: ID!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+  status: UploadStatus!
+  project: Project!
+  source: UploadSource!
+  processingJob: ProcessingJob
+  documents: DocumentConnection!
+  errorMessage: String
+  uploadedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type UploadConnection implements Pageable {
+  edges: [UploadEdge!]!
+  nodes: [Upload!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type UploadEdge {
+  cursor: String!
+  node: Upload!
+}
+
+type UploadSource implements Node {
+  id: ID!
+  provider: IntegrationProvider
+  externalPath: String
+  isNative: Boolean!
+}
+
+type ProcessingJob implements Node {
+  id: ID!
+  upload: Upload!
+  status: ProcessingStatus!
+  progress: Float!
+  totalFiles: Int!
+  processedFiles: Int!
+  failedFiles: Int!
+  startedAt: DateTime
+  completedAt: DateTime
+  errorMessage: String
+  logs: [ProcessingLog!]!
+}
+
+type ProcessingLog implements Node {
+  id: ID!
+  job: ProcessingJob!
+  message: String!
+  level: String!
+  timestamp: DateTime!
+}
+
+type Document implements Node & Auditable {
+  id: ID!
+  title: String!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+  extension: String!
+  status: DocumentStatus!
+  reviewDecision: ReviewDecision
+  project: Project!
+  upload: Upload!
+  assignee: User
+  tags: [Tag!]!
+  annotations: [Annotation!]!
+  redactions: [Redaction!]!
+  metadata: DocumentMetadata!
+  family: DocumentFamily
+  parentDocument: Document
+  childDocuments: [Document!]!
+  textContent: String
+  pageCount: Int
+  isPrivileged: Boolean!
+  isConfidential: Boolean!
+  reviewedAt: DateTime
+  reviewedBy: User
+  producedIn: [Production!]!
+  custodian: Custodian
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type DocumentConnection implements Pageable {
+  edges: [DocumentEdge!]!
+  nodes: [Document!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type DocumentEdge {
+  cursor: String!
+  node: Document!
+}
+
+type DocumentMetadata implements Node {
+  id: ID!
+  document: Document!
+  author: String
+  dateCreated: DateTime
+  dateModified: DateTime
+  dateReceived: DateTime
+  dateSent: DateTime
+  subject: String
+  from: String
+  to: [String!]
+  cc: [String!]
+  bcc: [String!]
+  messageId: String
+  hasAttachments: Boolean
+  customFields: JSON
+}
+
+type DocumentFamily implements Node {
+  id: ID!
+  parentDocument: Document!
+  childDocuments: [Document!]!
+  totalCount: Int!
+}
+
+type Tag implements Node & Auditable {
+  id: ID!
+  name: String!
+  description: String
+  color: TagColor!
+  project: Project!
+  isSystem: Boolean!
+  documentCount: Int!
+  parentTag: Tag
+  childTags: [Tag!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type Annotation implements Node & Auditable {
+  id: ID!
+  document: Document!
+  type: AnnotationType!
+  pageNumber: Int!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  content: String
+  color: String
+  author: User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type Redaction implements Node & Auditable {
+  id: ID!
+  document: Document!
+  pageNumber: Int!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  reason: String
+  approvedBy: User
+  approvedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type SavedSearch implements Node & Auditable {
+  id: ID!
+  name: String!
+  description: String
+  query: SearchQuery!
+  project: Project!
+  isShared: Boolean!
+  lastRanAt: DateTime
+  resultCount: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type SearchQuery {
+  terms: String
+  operator: SearchOperator!
+  filters: SearchFilters!
+  sort: SearchSort
+}
+
+type SearchFilters {
+  dateRange: DateRange
+  fileTypes: [String!]
+  custodians: [String!]
+  tags: [ID!]
+  reviewDecisions: [ReviewDecision!]
+  assignees: [ID!]
+  hasRedactions: Boolean
+  isPrivileged: Boolean
+  isConfidential: Boolean
+}
+
+type DateRange {
+  from: DateTime
+  to: DateTime
+}
+
+type SearchSort {
+  field: String!
+  direction: SortDirection!
+}
+
+type SearchResult {
+  document: Document!
+  score: Float!
+  highlights: [SearchHighlight!]!
+}
+
+type SearchHighlight {
+  field: String!
+  fragments: [String!]!
+}
+
+type SearchResultConnection implements Pageable {
+  edges: [SearchResultEdge!]!
+  nodes: [SearchResult!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+  facets: SearchFacets!
+}
+
+type SearchResultEdge {
+  cursor: String!
+  node: SearchResult!
+}
+
+type SearchFacets {
+  fileTypes: [FacetBucket!]!
+  custodians: [FacetBucket!]!
+  reviewDecisions: [FacetBucket!]!
+  tags: [FacetBucket!]!
+  dateHistogram: [DateHistogramBucket!]!
+}
+
+type FacetBucket {
+  key: String!
+  count: Int!
+}
+
+type DateHistogramBucket {
+  date: DateTime!
+  count: Int!
+}
+
+type Production implements Node & Auditable {
+  id: ID!
+  name: String!
+  description: String
+  project: Project!
+  status: ProductionStatus!
+  format: ProductionFormat!
+  documents: DocumentConnection!
+  totalDocuments: Int!
+  batesPrefix: String
+  batesStart: Int
+  batesEnd: Int
+  exportUrl: URL
+  startedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type LegalHold implements Node & Auditable {
+  id: ID!
+  name: String!
+  description: String
+  status: LegalHoldStatus!
+  project: Project!
+  custodians: [Custodian!]!
+  notifications: [HoldNotification!]!
+  releasedAt: DateTime
+  releasedBy: User
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type Custodian implements Node & Auditable {
+  id: ID!
+  name: String!
+  email: String
+  title: String
+  department: String
+  organization: Organization!
+  legalHolds: [LegalHold!]!
+  documents: DocumentConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type HoldNotification implements Node {
+  id: ID!
+  legalHold: LegalHold!
+  custodian: Custodian!
+  sentAt: DateTime!
+  acknowledgedAt: DateTime
+  isAcknowledged: Boolean!
+}
+
+type Integration implements Node {
+  id: ID!
+  provider: IntegrationProvider!
+  organization: Organization!
+  isActive: Boolean!
+  config: JSON
+  connectedAt: DateTime!
+  lastSyncedAt: DateTime
+}
+
+type ProjectAnalytics {
+  project: Project!
+  totalDocuments: Int!
+  reviewedDocuments: Int!
+  unreviewedDocuments: Int!
+  responsiveDocuments: Int!
+  privilegedDocuments: Int!
+  producedDocuments: Int!
+  storageUsedBytes: Int!
+  reviewProgress: Float!
+  documentsByType: [FacetBucket!]!
+  documentsByReviewDecision: [FacetBucket!]!
+  documentsByCustodian: [FacetBucket!]!
+  reviewActivityTimeline: [ReviewActivityPoint!]!
+  topReviewers: [ReviewerStat!]!
+}
+
+type ReviewActivityPoint {
+  date: DateTime!
+  documentsReviewed: Int!
+}
+
+type ReviewerStat {
+  user: User!
+  documentsReviewed: Int!
+  averageTimePerDocument: Float
+}
+
+type OrganizationAnalytics {
+  organization: Organization!
+  totalProjects: Int!
+  totalDocuments: Int!
+  totalStorageUsedBytes: Int!
+  activeUsers: Int!
+  uploadsThisMonth: Int!
+  productionsThisMonth: Int!
+}
+
+type AuditLog implements Node {
+  id: ID!
+  action: String!
+  resourceType: String!
+  resourceId: ID!
+  user: User!
+  ipAddress: String
+  userAgent: String
+  metadata: JSON
+  timestamp: DateTime!
+}
+
+type AuditLogConnection implements Pageable {
+  edges: [AuditLogEdge!]!
+  nodes: [AuditLog!]!
+  totalCount: Int!
+  pageInfo: PageInfo!
+}
+
+type AuditLogEdge {
+  cursor: String!
+  node: AuditLog!
+}
+
+type Webhook implements Node & Auditable {
+  id: ID!
+  url: URL!
+  events: [String!]!
+  isActive: Boolean!
+  secret: String
+  organization: Organization!
+  deliveries: [WebhookDelivery!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+type WebhookDelivery implements Node {
+  id: ID!
+  webhook: Webhook!
+  event: String!
+  payload: JSON!
+  responseStatus: Int
+  responseBody: String
+  deliveredAt: DateTime!
+  success: Boolean!
+}
+
+type APIKey implements Node & Auditable {
+  id: ID!
+  name: String!
+  keyPrefix: String!
+  organization: Organization!
+  user: User!
+  isActive: Boolean!
+  lastUsedAt: DateTime
+  expiresAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User!
+}
+
+# ─── Input Types ───────────────────────────────────────────────────────────────
+
+input CreateProjectInput {
+  name: String!
+  description: String
+  caseNumber: String
+  matterNumber: String
+}
+
+input UpdateProjectInput {
+  name: String
+  description: String
+  caseNumber: String
+  matterNumber: String
+}
+
+input CreateTagInput {
+  name: String!
+  description: String
+  color: TagColor!
+  projectId: ID!
+  parentTagId: ID
+}
+
+input UpdateTagInput {
+  name: String
+  description: String
+  color: TagColor
+  parentTagId: ID
+}
+
+input CreateUploadInput {
+  projectId: ID!
+  fileName: String!
+  fileSize: Int!
+  mimeType: String!
+}
+
+input UpdateDocumentInput {
+  assigneeId: ID
+  reviewDecision: ReviewDecision
+  isPrivileged: Boolean
+  isConfidential: Boolean
+}
+
+input BulkTagDocumentsInput {
+  documentIds: [ID!]!
+  tagIds: [ID!]!
+  action: BulkTagAction!
+}
+
+enum BulkTagAction {
+  ADD
+  REMOVE
+  REPLACE
+}
+
+input SearchInput {
+  projectId: ID!
+  terms: String
+  operator: SearchOperator
+  filters: SearchFiltersInput
+  sort: SearchSortInput
+  first: Int
+  after: String
+}
+
+input SearchFiltersInput {
+  dateRange: DateRangeInput
+  fileTypes: [String!]
+  custodians: [String!]
+  tagIds: [ID!]
+  reviewDecisions: [ReviewDecision!]
+  assigneeIds: [ID!]
+  hasRedactions: Boolean
+  isPrivileged: Boolean
+  isConfidential: Boolean
+}
+
+input DateRangeInput {
+  from: DateTime
+  to: DateTime
+}
+
+input SearchSortInput {
+  field: String!
+  direction: SortDirection!
+}
+
+input SaveSearchInput {
+  name: String!
+  description: String
+  projectId: ID!
+  query: SearchQueryInput!
+  isShared: Boolean
+}
+
+input SearchQueryInput {
+  terms: String
+  operator: SearchOperator
+  filters: SearchFiltersInput
+  sort: SearchSortInput
+}
+
+input CreateProductionInput {
+  name: String!
+  description: String
+  projectId: ID!
+  format: ProductionFormat!
+  documentIds: [ID!]!
+  batesPrefix: String
+  batesStart: Int
+}
+
+input CreateLegalHoldInput {
+  name: String!
+  description: String
+  projectId: ID!
+  custodianIds: [ID!]!
+}
+
+input CreateCustodianInput {
+  name: String!
+  email: String
+  title: String
+  department: String
+}
+
+input CreateAnnotationInput {
+  documentId: ID!
+  type: AnnotationType!
+  pageNumber: Int!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  content: String
+  color: String
+}
+
+input CreateRedactionInput {
+  documentId: ID!
+  pageNumber: Int!
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  reason: String
+}
+
+input CreateWebhookInput {
+  url: URL!
+  events: [String!]!
+  secret: String
+}
+
+input CreateAPIKeyInput {
+  name: String!
+  expiresAt: DateTime
+}
+
+input InviteUserInput {
+  email: String!
+  role: UserRole!
+  projectIds: [ID!]
+}
+
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+
+# ─── Query ─────────────────────────────────────────────────────────────────────
+
+type Query {
+  # Organization
+  organization: Organization!
+  organizationAnalytics: OrganizationAnalytics!
+
+  # Users
+  me: User!
+  user(id: ID!): User
+  users(pagination: PaginationInput): [User!]!
+
+  # Projects
+  project(id: ID!): Project
+  projects(pagination: PaginationInput): ProjectConnection!
+  projectAnalytics(projectId: ID!): ProjectAnalytics!
+
+  # Uploads
+  upload(id: ID!): Upload
+  uploads(projectId: ID!, pagination: PaginationInput): UploadConnection!
+
+  # Processing
+  processingJob(id: ID!): ProcessingJob
+
+  # Documents
+  document(id: ID!): Document
+  documents(projectId: ID!, pagination: PaginationInput): DocumentConnection!
+  documentsByTag(tagId: ID!, pagination: PaginationInput): DocumentConnection!
+  documentsByAssignee(assigneeId: ID!, projectId: ID!, pagination: PaginationInput): DocumentConnection!
+
+  # Tags
+  tag(id: ID!): Tag
+  tags(projectId: ID!): [Tag!]!
+
+  # Search
+  search(input: SearchInput!): SearchResultConnection!
+  savedSearch(id: ID!): SavedSearch
+  savedSearches(projectId: ID!): [SavedSearch!]!
+
+  # Productions
+  production(id: ID!): Production
+  productions(projectId: ID!): [Production!]!
+
+  # Legal Holds
+  legalHold(id: ID!): LegalHold
+  legalHolds(projectId: ID!): [LegalHold!]!
+
+  # Custodians
+  custodian(id: ID!): Custodian
+  custodians(pagination: PaginationInput): [Custodian!]!
+
+  # Integrations
+  integrations: [Integration!]!
+
+  # Audit
+  auditLogs(
+    resourceType: String
+    resourceId: ID
+    userId: ID
+    from: DateTime
+    to: DateTime
+    pagination: PaginationInput
+  ): AuditLogConnection!
+
+  # Webhooks
+  webhook(id: ID!): Webhook
+  webhooks: [Webhook!]!
+
+  # API Keys
+  apiKey(id: ID!): APIKey
+  apiKeys: [APIKey!]!
+
+  # Plan
+  plan: Plan!
+}
+
+# ─── Mutation ──────────────────────────────────────────────────────────────────
+
+type Mutation {
+  # Projects
+  createProject(input: CreateProjectInput!): Project!
+  updateProject(id: ID!, input: UpdateProjectInput!): Project!
+  deleteProject(id: ID!): Boolean!
+  addProjectMember(projectId: ID!, userId: ID!, role: UserRole!): ProjectMember!
+  removeProjectMember(projectId: ID!, userId: ID!): Boolean!
+
+  # Uploads
+  createUpload(input: CreateUploadInput!): Upload!
+  cancelUpload(id: ID!): Upload!
+  deleteUpload(id: ID!): Boolean!
+  retryUpload(id: ID!): Upload!
+
+  # Documents
+  updateDocument(id: ID!, input: UpdateDocumentInput!): Document!
+  bulkUpdateDocuments(ids: [ID!]!, input: UpdateDocumentInput!): [Document!]!
+  assignDocument(documentId: ID!, assigneeId: ID!): Document!
+  unassignDocument(documentId: ID!): Document!
+
+  # Tags
+  createTag(input: CreateTagInput!): Tag!
+  updateTag(id: ID!, input: UpdateTagInput!): Tag!
+  deleteTag(id: ID!): Boolean!
+  tagDocuments(input: BulkTagDocumentsInput!): [Document!]!
+
+  # Annotations
+  createAnnotation(input: CreateAnnotationInput!): Annotation!
+  updateAnnotation(id: ID!, content: String): Annotation!
+  deleteAnnotation(id: ID!): Boolean!
+
+  # Redactions
+  createRedaction(input: CreateRedactionInput!): Redaction!
+  approveRedaction(id: ID!): Redaction!
+  deleteRedaction(id: ID!): Boolean!
+
+  # Saved Searches
+  saveSearch(input: SaveSearchInput!): SavedSearch!
+  updateSavedSearch(id: ID!, input: SaveSearchInput!): SavedSearch!
+  deleteSavedSearch(id: ID!): Boolean!
+
+  # Productions
+  createProduction(input: CreateProductionInput!): Production!
+  cancelProduction(id: ID!): Production!
+  deleteProduction(id: ID!): Boolean!
+
+  # Legal Holds
+  createLegalHold(input: CreateLegalHoldInput!): LegalHold!
+  releaseLegalHold(id: ID!): LegalHold!
+  addCustodianToHold(holdId: ID!, custodianId: ID!): LegalHold!
+  removeCustodianFromHold(holdId: ID!, custodianId: ID!): LegalHold!
+  sendHoldNotification(holdId: ID!, custodianId: ID!): HoldNotification!
+  acknowledgeHoldNotification(notificationId: ID!): HoldNotification!
+
+  # Custodians
+  createCustodian(input: CreateCustodianInput!): Custodian!
+  updateCustodian(id: ID!, input: CreateCustodianInput!): Custodian!
+  deleteCustodian(id: ID!): Boolean!
+
+  # Users
+  inviteUser(input: InviteUserInput!): User!
+  updateUserRole(userId: ID!, role: UserRole!): User!
+  deactivateUser(userId: ID!): User!
+
+  # Webhooks
+  createWebhook(input: CreateWebhookInput!): Webhook!
+  updateWebhook(id: ID!, input: CreateWebhookInput!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
+  testWebhook(id: ID!): WebhookDelivery!
+
+  # API Keys
+  createAPIKey(input: CreateAPIKeyInput!): String!
+  revokeAPIKey(id: ID!): Boolean!
+
+  # Integrations
+  connectIntegration(provider: IntegrationProvider!, config: JSON!): Integration!
+  disconnectIntegration(provider: IntegrationProvider!): Boolean!
+}
+
+# ─── Subscription ──────────────────────────────────────────────────────────────
+
+type Subscription {
+  uploadStatusChanged(uploadId: ID!): Upload!
+  processingJobUpdated(jobId: ID!): ProcessingJob!
+  documentUpdated(projectId: ID!): Document!
+  productionStatusChanged(productionId: ID!): Production!
+  reviewProgressUpdated(projectId: ID!): ProjectAnalytics!
+}
