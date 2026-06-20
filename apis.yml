@@ -4,7 +4,7 @@ description: Cloud eDiscovery platform with a REST API for uploading case docume
   managing review projects, applying tags and redactions, and generating production
   sets. Logikcull enables legal teams to process, review, and produce data in a self-service
   model with integrations for Slack, Microsoft 365, Google Workspace, Box, and Dropbox.
-image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
 url: https://raw.githubusercontent.com/api-evangelist/logikcull/refs/heads/main/apis.yml
 created: '2026-06-13'
 modified: '2026-06-13'
@@ -24,7 +24,7 @@ apis:
   description: REST API for programmatic access to Logikcull's eDiscovery platform,
     enabling document upload, project management, tagging, redactions, and production
     set generation for legal review workflows.
-  image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
   humanURL: https://www.logikcull.com/
   baseURL: https://api.logikcull.com
   tags:
