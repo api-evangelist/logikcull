@@ -50,6 +50,12 @@ apis:
   - url: graphql/logikcull-graphql.md
     type: GraphQL
 common:
+- type: TrustCenter
+  url: security/logikcull-trust-center.yml
+- type: VulnerabilityDisclosure
+  url: security/logikcull-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/logikcull-domain-security.yml
 - type: Plans
   url: plans/logikcull-plans-pricing.yml
 - type: RateLimits
