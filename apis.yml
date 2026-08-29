@@ -4,6 +4,17 @@ description: Cloud eDiscovery platform with a REST API for uploading case docume
   managing review projects, applying tags and redactions, and generating production
   sets. Logikcull enables legal teams to process, review, and produce data in a self-service
   model with integrations for Slack, Microsoft 365, Google Workspace, Box, and Dropbox.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: paid
   onboarding: unknown
