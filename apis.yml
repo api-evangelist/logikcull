@@ -81,6 +81,8 @@ apis:
   - url: graphql/logikcull-graphql.md
     type: GraphQL
 common:
+- type: Website
+  url: https://www.logikcull.com/
 - type: TrustCenter
   url: security/logikcull-trust-center.yml
 - type: VulnerabilityDisclosure
