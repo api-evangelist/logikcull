@@ -36,7 +36,7 @@ type: Index
 tags:
 - eDiscovery
 - Legal
-- Document-Management
+- Document Management
 - Legal Hold
 - Redaction
 - Production Sets
@@ -49,6 +49,7 @@ tags_raw:
 - Redaction
 - Production Sets
 - Cloud
+- Document-Management
 apis:
 - aid: logikcull:logikcull-api
   name: Logikcull API
@@ -78,8 +79,6 @@ apis:
     url: rate-limits/logikcull-rate-limits.yml
   - type: FinOps
     url: finops/logikcull-finops.yml
-  - url: graphql/logikcull-graphql.md
-    type: GraphQL
 common:
 - type: Website
   url: https://www.logikcull.com/
