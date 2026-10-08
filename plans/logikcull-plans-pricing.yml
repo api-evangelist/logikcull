@@ -60,3 +60,25 @@ notes:
   - Firms typically bill clients on a per-GB per-month basis for matter billing.
   - No extra hosting or user fees on Pay As You Go.
   - API access capabilities are available to subscription customers.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - negotiated
+  - subscription
+  units: []
+  plans:
+  - name: Pay As You Go
+    access: other
+    model: subscription
+    model_how: derived
+    units:
+    - other
+    periods: []
+  - name: Subscription (Annual)
+    access: other
+    model: negotiated
+    model_how: derived
+    units:
+    - other
+    periods: []
